@@ -1,0 +1,355 @@
+<!doctype html>
+<html class="no-js" lang="de">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!--
+  <meta property="og:title" content="">
+  <meta property="og:type" content="">
+  <meta property="og:url" content="">
+  <meta property="og:image" content="">
+  -->
+
+  <!--
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.png">
+  -->
+
+  <!--
+  <link rel="stylesheet" href="css/normalize.css">
+  -->
+  <link rel="stylesheet" href="/app/css/flex.css">
+  <link rel="stylesheet" href="/app/css/flex-colors.css">
+
+  <!--
+  <link rel="manifest" href="site.webmanifest">
+  -->
+
+  <meta name="theme-color" content="#fafafa">
+</head>
+
+<body>
+  <r-float color-p pos-sticky pos-t-l>
+    <r-fit>
+      <c-20>
+        <h1>Flex CSS</h1>
+      </c-20>
+      <a nav-l ma-t-32 href="#zeilen">Zeilen</a>
+      <a nav-l ma-t-32 href="#spalten">Spalten</a>
+      <a nav-l ma-t-32 href="#abstand">Abstände</a>
+    </r-fit>
+  </r-float>
+
+  <r-fit ma-t-48>
+    <h2>Beschreibung</h2>
+    <p>Flex-CSS erweitert die HTML-Syntax um eigene Tag's zur einfacheren Formatierung von HTML-Code.</p>
+    <p>Es besteht aus zwei Dateien, eine für die Formatierung und eine für die Farben.<br>
+      Das gewährleistet das ein Farbschema unabhängig von der restlichen Formarierung gewählt werden kann.
+    </p>
+    <p>Der Aufbau besteht aus einfachen Zeilen und Spalten. Ist somit leicht erlernbar und anzuwenden.</p>
+  </r-fit>
+
+  <r-fit>
+    <h2>Installation</h2>
+    <p>Flex-CSS kann in jede Seite einfach eingebettet werden.</p>
+    <pre color-darkgrey><code>
+&lt;link rel="stylesheet" href="/app/css/flex.css">
+&lt;link rel="stylesheet" href="/app/css/flex-colors.css">
+    </code></pre>
+  </r-fit>
+  <div pa-t-32 id="zeilen"></div>
+  <r-fit ma-t-48>
+    <h2>Zeilen - Rows</h2>
+    <p>Die Grundkomponente sind Zeilen <b>row</b>, und sind vergleichbar mit <b>container</b> in anderen Frameworks.
+    </p>
+    <p>Die Zeilen haben standardmäßig keine Abstände. <b>margin</b> oder <b>padding</b> können nach bedarf angegeben
+      werden.</p>
+    <p>Es gibt zwei Arten von Rows:</p>
+    <ul>
+      <li>- <code><b>r-float</b></code> welche sich bis zum Rand des Viewports ausdehnen.</li>
+      <li>- <code><b>r-fit</b></code> sind mittig zentriert und passen sich an die Göße des Viewports an.</li>
+    </ul>
+  </r-fit>
+  <r-fit>
+    <h2>Beispiele für Rows:</h2>
+  </r-fit>
+  <r-fit>
+    <pre color-darkgrey><code>
+&lt;r-float color-s pa-v-32>
+  &lt;p> r-float &lt;/p>
+&lt;/r-float>
+    </code></pre>
+  </r-fit>
+  <r-float color-s pa-v-32>
+    <p>r-float</p>
+  </r-float>
+
+  <r-fit ma-t-32>
+    <pre color-darkgrey><code>
+&lt;r-fit color-s pa-v-32>
+  &lt;p> r-float &lt;/p>
+&lt;/r-fit>
+    </code></pre>
+  </r-fit>
+  <r-fit color-s pa-v-32>
+    <p>r-fit</p>
+  </r-fit>
+
+  <r-fit>
+    <p>Diese können auch ineinander angewendet werden</p>
+  </r-fit>
+
+  <r-fit ma-t-32>
+    <pre color-darkgrey><code>
+&lt;r-float color-s>
+  &lt;r-fit color-s2 pa-v-32>
+    &lt;p>&lt;b> r-fit &lt;/b> innerhalb von &lt;b> r-float &lt;/b>&lt;/p>
+  &lt;/r-fit>
+&lt;/r-float>
+    </code></pre>
+  </r-fit>
+  <r-float color-s>
+    <r-fit color-s2 pa-v-32>
+      <p><b>r-fit</b> innerhalb von <b>r-float</b></p>
+    </r-fit>
+  </r-float>
+
+  <div pa-t-32 id="spalten"></div>
+  <r-fit ma-t-32>
+    <h2>Spalten - Cols</h2>
+    <p>Wird keine Spalte angegeben, so wird die ganze Breite der Zeile genutzt.<br/>
+      Der Text/Absatz muss dabei immer in einen Tag (zB.:&lt;p>&lt;/p>) gepackt werden, um einen leichten Abstand vom Rand zu Erhalten.
+    </p>
+    <p><b>c-fit</b> passt sich der verbleibenden Breite der Zeile an</p>
+    <pre color-darkgrey>
+      <code>
+&lt;r-fit>
+  &lt;c-fit color-s>&lt;p> c-fit &lt;/p>&lt;/c-fit>
+  &lt;c-fit color-s2>&lt;p> c-fit &lt;/p>&lt;/c-fit>
+  &lt;c-fit color-s>&lt;p> c-fit &lt;/p>&lt;/c-fit>
+&lt;/r-fit>
+
+&lt;r-fit>
+  &lt;c-3 color-s>&lt;p> c-3 &lt;/p>&lt;/c-3>
+  &lt;c-fit color-s2>&lt;p> c-fit &lt;/p>&lt;/c-fit>
+&lt;/r-fit>
+      </code>
+    </pre>
+  </r-fit>
+  <r-fit>
+    <c-fit color-s>
+      <p>c-fit</p>
+    </c-fit>
+    <c-fit color-s2>
+      <p>c-fit</p>
+    </c-fit>
+    <c-fit color-s>
+      <p>c-fit</p>
+    </c-fit>
+  </r-fit>
+  <r-fit ma-t>
+    <c-3 color-s>
+      <p>c-3</p>
+    </c-3>
+    <c-fit color-s2>
+      <p>c-fit</p>
+    </c-fit>
+  </r-fit>
+
+  <r-fit>
+    <h3 ma-t-32>Grid System (12 Spalten)</h3>
+    <p>Die spalten sind wie bei anderen Frameworks für ein Grid-System von 12 Spalten ausgelegt.<br>
+      <code>c-1</code> bis <code>c-12</code>
+    </p>
+    <pre color-darkgrey>
+      <code>
+&lt;r-fit ma-t>
+  &lt;c-1 color-s>&lt;p> c-1 &lt;/p>&lt;/c-1>
+  &lt;c-11 color-s2>&lt;p> c-11 &lt;/p>&lt;/c-11>
+&lt;/r-fit>
+...
+      </code>
+    </pre>
+  </r-fit>
+
+  <r-fit ma-t><c-1 color-s>
+      <p>c-1</p>
+    </c-1><c-fit color-s2>
+      <p>c-11</p>
+    </c-11></r-fit>
+  <r-fit ma-t><c-2 color-s>
+      <p>c-2</p>
+    </c-2><c-10 color-s2>
+      <p>c-10</p>
+    </c-10></r-fit>
+  <r-fit ma-t><c-3 color-s>
+      <p>c-3</p>
+    </c-3><c-9 color-s2>
+      <p>c-9</p>
+    </c-9></r-fit>
+  <r-fit ma-t><c-4 color-s>
+      <p>c-4</p>
+    </c-4><c-8 color-s2>
+      <p>c-8</p>
+    </c-8></r-fit>
+  <r-fit ma-t><c-5 color-s>
+      <p>c-5</p>
+    </c-5><c-7 color-s2>
+      <p>c-7</p>
+    </c-7></r-fit>
+  <r-fit ma-t><c-6 color-s>
+      <p>c-6</p>
+    </c-6><c-6 color-s2>
+      <p>c-6</p>
+    </c-6></r-fit>
+  <r-fit ma-t><c-12 color-s>
+      <p>c-12</p>
+    </c-12></r-fit>
+
+  <r-fit ma-t-32>
+    <h3>Spalten mit %-Werten</h3>
+    <p>Spalten können auch mit %-Werten angegeben werden.</p>
+    <p>Dazu sind folgende Werte möglich</p>
+  </r-fit>
+  <r-fit ma-t>
+    <c-20 color-s>
+      <p>c-20 (20%)</p>
+    </c-20>
+    <c-80 color-s2>
+      <p>c-80 (80%)</p>
+    </c-80>
+  </r-fit>
+  <r-fit ma-t>
+    <c-25 color-s>
+      <p>c-25 (25%)</p>
+    </c-25>
+    <c-75 color-s2>
+      <p>c-75 (75%)</p>
+    </c-75>
+  </r-fit>
+  <r-fit ma-t>
+    <c-33 color-s>
+      <p>c-33 (33%)</p>
+    </c-33>
+    <c-66 color-s2>
+      <p>c-66 (66%)</p>
+    </c-66>
+  </r-fit>
+  <r-fit ma-t>
+    <c-40 color-s>
+      <p>c-40 (40%)</p>
+    </c-40>
+    <c-60 color-s2>
+      <p>c-60 (60%)</p>
+    </c-60>
+  </r-fit>
+  <r-fit ma-t>
+    <c-50 color-s>
+      <p>c-50 (50%)</p>
+    </c-50>
+    <c-50 color-s2>
+      <p>c-50 (50%)</p>
+    </c-50>
+  </r-fit>
+  <r-fit ma-t>
+    <c-100 color-s>
+      <p>c-100 (100%)</p>
+    </c-100>
+  </r-fit>
+
+
+  <r-fit>
+    <h3 ma-t-32>Spalten als Cards</h3>
+    <p>Spalten können auch als Cards fungieren</p>
+    <pre color-darkgrey>
+      <code>
+&lt;r-fit style="height: 200px;">
+  &lt;c-fit color-s ma-h shadow-4> &lt;p>c-fit mit Abstand und Schatten&lt;/p> &lt;/c-fit>
+  &lt;c-fit color-s ma-h shadow-4> &lt;p>c-fit mit Abstand und Schatten&lt;/p> &lt;/c-fit>
+  &lt;c-fit color-s ma-h shadow-4> &lt;p>c-fit mit Abstand und Schatten&lt;/p> &lt;/c-fit>
+&lt;/r-fit>
+      </code>
+    </pre>
+  </r-fit>
+
+  <r-fit style="height: 200px;">
+    <c-fit color-s ma-h shadow-4>
+      <p>c-fit mit Abstand und Schatten</p>
+    </c-fit>
+    <c-fit color-s ma-h shadow-4>
+      <p>c-fit mit Abstand und Schatten</p>
+    </c-fit>
+    <c-fit color-s ma-h shadow-4>
+      <p>c-fit mit Abstand und Schatten</p>
+    </c-fit>
+  </r-fit>
+
+  <div pa-t-32 id="abstand"></div>
+
+  <r-fit ma-t-32>
+    <h2>Abstände</h2>
+    <h3>Margin</h3>
+    <p><b>Abstände zwischen den Objekten</b></p>
+    <p>Folgende Angaben für Margin sind möglich:</p>
+    <table table-fit>
+      <thead>
+        <tr><th>class</th><th>Beschreibung</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>ma-0</td><td>kein Abstand, alle Abstände werden entfernt</td></tr>
+        <tr><td>ma-all</td><td>8px an allen Seiten</td></tr>
+        <tr><td>ma-v</td><td>vertical, 8px Oben und Unten</td></tr>
+        <tr><td>ma-v-16</td><td>vertical, 16px Oben und Unten</td></tr>
+        <tr><td>ma-v-32</td><td>vertical, 32px Oben und Unten</td></tr>
+        <tr><td>ma-v-48</td><td>vertical, 48px Oben und Unten</td></tr>
+        <tr><td>ma-v-64</td><td>vertical, 64px Oben und Unten</td></tr>
+        <tr><td>ma-h</td><td>horizontal, 8px Links und Rechts</td></tr>
+        <tr><td>ma-t</td><td>top, 8px Oben</td></tr>
+        <tr><td>ma-t-16</td><td>top, 16px Oben</td></tr>
+        <tr><td>ma-t-32</td><td>top, 32px Oben</td></tr>
+        <tr><td>ma-t-48</td><td>top, 48px Oben</td></tr>
+        <tr><td>ma-t-64</td><td>top, 64px Oben</td></tr>
+        <tr><td>ma-b</td><td>bottom, 8px Unten</td></tr>
+        <tr><td>ma-l</td><td>left, 8px Links</td></tr>
+        <tr><td>ma-r</td><td>right, 8px Rechts</td></tr>
+      </tbody>
+    </table>
+  </r-fit>
+
+  <r-fit ma-t-32>
+    <h3>Padding</h3>
+    <p><b>Abstände vom Text zum Rand</b></p>
+    <p>Folgende Angaben für Padding sind möglich:</p>
+    <table table-fit>
+      <thead>
+        <tr><th>class</th><th>Beschreibung</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>pa-0</td><td>kein Abstand, alle Abstände werden entfernt</td></tr>
+        <tr><td>pa-all</td><td>8px an allen Seiten</td></tr>
+        <tr><td>pa-v</td><td>vertical, 8px Oben und Unten</td></tr>
+        <tr><td>pa-v-16</td><td>vertical, 16px Oben und Unten</td></tr>
+        <tr><td>pa-v-32</td><td>vertical, 32px Oben und Unten</td></tr>
+        <tr><td>pa-h</td><td>horizontal, 8px Links und Rechts</td></tr>
+        <tr><td>pa-t</td><td>top, 8px Oben</td></tr>
+        <tr><td>pa-t-16</td><td>top, 16px Oben</td></tr>
+        <tr><td>pa-t-32</td><td>top, 32px Oben</td></tr>
+        <tr><td>pa-b</td><td>bottom, 8px Unten</td></tr>
+        <tr><td>pa-l</td><td>left, 8px Links</td></tr>
+        <tr><td>pa-r</td><td>right, 8px Rechts</td></tr>
+      </tbody>
+    </table>
+  </r-fit>
+
+  
+  <r-float ma-t-32 pa-v-16 color-p>
+    <p>(c) 2023</p>
+  </r-float>
+</body>
+
+</html>

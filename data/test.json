@@ -1,0 +1,20 @@
+{
+    "adresse": {
+        "prop": {},
+        "list": {
+            "_cols": [
+                "IDX",
+                "name",
+                "type"
+            ],
+            "IDX": [
+                1,
+                2
+            ],
+            "name": [
+                "Hallo",
+                "Welt"
+            ]
+        }
+    }
+}
