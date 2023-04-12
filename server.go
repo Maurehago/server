@@ -10,6 +10,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
+	"runtime"
 )
 
 // mit ausgelieferte Dateien
@@ -22,9 +24,28 @@ const (
 	Host   = "localhost"
 	Port   = "8080"
 	Static = "./"
+	Open   = true
 )
 
 var port, static string
+
+// im Browser öffenen
+func open(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start"}
+	case "darwin":
+		cmd = "open"
+	default: // "linux", "freebsd", "openbsd", "netbsd"
+		cmd = "xdg-open"
+	}
+	args = append(args, url)
+	return exec.Command(cmd, args...).Start()
+}
 
 // Test Handle Funktion
 func test(w http.ResponseWriter, r *http.Request) {
@@ -156,6 +177,7 @@ func main() {
 	//Create the server.
 	serverURL := Host + ":" + port
 
+	fmt.Println(runtime.GOOS)
 	fmt.Println("Server running on http://" + serverURL)
 	fmt.Println("stop with CTRL+C   or   STRG+C")
 	fmt.Println("...")
@@ -164,5 +186,9 @@ func main() {
 	if err != nil {
 		log.Fatal("Error Starting the HTTP Server :", err)
 		return
+	}
+
+	if Open {
+		open("http://" + serverURL)
 	}
 }
