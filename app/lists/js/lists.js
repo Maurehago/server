@@ -5,19 +5,43 @@
 
 // Liste vorlage
 var List = {
-    _cols: []
-    , _idx: []
-    , _table: {
-        _default: "default"
-        , default: []
-    }
+    cols: []
+    , types: []
+    , rest: []
+    , info: []
+    , data: []
 };
 
-// Spalten
-// type: ""
-// data: []
-// table: {tag: "", attr: "", class: ""}
-// form: {tag: "", attr: "", class: ""}
+// ```yaml
+// kunde:
+//   cols: [
+//     ["g_nummer", "int32", "", ""]
+//     , ["vorname", "string", "", ""]
+//     , ["nachname", "string", "", ""]
+//     , ["adresse_g_nummer", "int32", "", ""]
+//   ]
+//   join: [[3, "adresse", 0]]
+//   uniq: [[0]]
+//   data: [
+//       [1, "Hugo", "Habich", 1]
+//       [2, "Max", "Muster", 2]
+//   ]
+
+// adresse:
+//   cols: [
+//     ["g_nummer", "int32", "", ""]
+//     , ["strasse", "string", "", ""]
+//     , ["plz", "string", "", ""]
+//     , ["ort", "string", "", ""]
+//   ]
+//   join: [[0, "kunde", 3]]
+//   uniq: [[0]]
+//   data: [
+//     [1, "Vogelgasse 233", "4321", "Nest"]
+//     , [2, "Musterstrasse 11", "1234", "Musterhausen"]
+//   ]
+
+
 
 // Sortierungs Index
 function get_sort(list, field) {
