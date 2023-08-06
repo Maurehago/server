@@ -33,7 +33,7 @@ const (
 
 var port, static, homedir string
 
-// im Browser öffenen
+// im Browser öffnen
 func open(url string) error {
 	var cmd string
 	var args []string
@@ -205,7 +205,7 @@ func main() {
 	}))
 
 	// Statische Seiten im unterOrdner "public"
-	// werden mit in die .EXE compeliert
+	// werden mit in die .EXE compiliert
 	go http.Handle("/", publicHandler())
 
 	// http.Handle("/", fileServer)
@@ -216,7 +216,7 @@ func main() {
 
 	fmt.Println(runtime.GOOS)
 	fmt.Println("Server running on http://" + serverURL)
-	fmt.Println("stop with CTRL+C   or   STRG+C")
+	fmt.Println("stop with CTRL+C")
 	fmt.Println("...")
 
 	err = http.ListenAndServe(serverURL, nil)
