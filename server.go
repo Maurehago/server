@@ -2,16 +2,20 @@ package main
 
 // Pakete die zur Bearbeitung benötigt werden
 import (
+	"crypto/rand"
 	"embed"
 	"flag"
 	"fmt"
 	"io/fs"
 	"io/ioutil"
 	"log"
+	"math/big"
 	"net/http"
 	"os"
 	"os/exec"
 	"runtime"
+	"strconv"
+	"time"
 )
 
 // mit ausgelieferte Dateien
@@ -50,6 +54,25 @@ func open(url string) error {
 // Test Handle Funktion
 func test(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello Welt!")
+}
+
+// GSID Erstellen
+func gsid() string {
+	// Time
+	t := time.Now()
+	unixTime := t.UnixMilli()
+	timestring := strconv.FormatInt(unixTime, 36)
+
+	// Random
+	r, err := rand.Int(rand.Reader, big.NewInt(10000000000))
+	if err != nil {
+		fmt.Println("error:", err)
+		return err.Error()
+	}
+	randstring := strconv.FormatInt(r.Int64(), 36)
+
+	// Time + Random
+	return timestring + randstring
 }
 
 // Handle Funktion die Requests abarbeitet
@@ -165,6 +188,12 @@ func main() {
 		filePath := static + r.URL.Path
 		// nur die Datei ausliefern
 		http.ServeFile(w, r, filePath)
+	}))
+
+	// GSID Handle
+	go http.Handle("/gsid/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// GSID ausliefern
+		fmt.Fprintf(w, gsid())
 	}))
 
 	// Statische Seiten im unterOrdner "public"

@@ -3,14 +3,25 @@
 // build:2023-03-14
 // =========================
 
-// Liste vorlage
-var List = {
-    cols: []
-    , types: []
-    , rest: []
-    , info: []
-    , data: []
-};
+
+// Global Short Identifier
+function GSID () {
+    return new Date().getTime().toString(36) + crypto.getRandomValues(new Uint32Array(1))[0].toString(36);
+}
+
+
+// Definition
+var _def = new Map({
+    base: "_def"
+    , cols: [
+        ["name", "string"]
+        , ["type", "string"]
+        , ["rest", "string"]
+        , ["info", "string"]
+    ]
+    , uniq: [[0]]
+});
+
 
 // ```yaml
 // kunde:
@@ -44,28 +55,37 @@ var List = {
 
 
 // Sortierungs Index
-function get_sort(list, field) {
-    var list_field = list[field];
+function get_sort(list, field_index) {
+    var data = list.data;
+    if (!data) {return [];}
 
     // Index Tabelle als vorgabe
-    var sort_table = list._idx.sort(function(a, b) {
-        var a_value = list_field.data[a];
-        var b_value = list_field.data[b];
+    var sort_table = data.sort(function(a, b) {
+        // Wert von Spalte lesen
+        var a_value = a[field_index];
+        var b_value = b[field_index];
 
+        // Werte prüfen und Sortierung zurückgeben
         if (a_value > b_value) { return 1; }
         if (a_value < b_value) { return -1; }
 
+        // Werte sind gleich
         return 0;
     });
 
     return sort_table;
 };
 
-function get_filter(list, field, filter_value) {
+// Daten Filtern
+function get_filter(list, field_index, filter_value) {
     var new_list = [];
-    list[field].data.forEach(function (value, index) {
+    var data = list.data;
+    if (!data) {return new_list;}
+
+    data.forEach(function (row, index) {
+        var value = row[field_index];
         if (value == filter_value) {
-            new_list.push(index);
+            new_list.push(row);
         }
     });
     return new_list;
@@ -73,56 +93,24 @@ function get_filter(list, field, filter_value) {
 
 
 // Gruppierung
-function get_group(list, field) {
-    var list_field = list[field];
+function get_group(list, field_index) {
     var data_map = new Map();
+    var data = list.data;
+    if (!data) {return data_map;}
 
     // alle durchgehen
-    list._idx.forEach(function (id, index) {
-        var new_key = list_field.data[index];
+    data.forEach(function (row, index) {
+        var new_key = row[field_index];
 
         if (data_map.has(new_key)) {
-            data_map.get(new_key).push(index);
+            data_map.get(new_key).push(row);
         } else {
-            data_map.set(new_key, [index]);
+            data_map.set(new_key, [row]);
         }
     });
 
     return data_map;
 };
-
-
-
-var menu_schema = {
-    prop: {schema: "_def"}
-    , list: {
-        _cols: ["IDX","name","type","rest","info"]
-        , IDX: [1,2,3]
-        , name: ["IDX","name","list"]
-        , type: ["int32","string","string"]
-        , rest: ["","",""]
-        , info: ["Index","Name des Menüpunktes","Pfad zu der Liste"]
-    }
-}
-
-var menu_list = {
-    prop: {
-        schema: "menu_schema"
-        ,width: 50
-    }
-    , list: {
-        _cols: ["IDX","name","list"]
-        , IDX: []
-        , name: []
-        , list: []
-    }
-};
-
-var lists = {
-    current: 0
-    , cols: [{name: "Menü", list:"menu_list"}]
-};
-
 
 // Liste anzeigen
 function show_list(colpos, listdoc){
