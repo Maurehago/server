@@ -6,8 +6,8 @@ import (
 	"embed"
 	"flag"
 	"fmt"
+	"io"
 	"io/fs"
-	"io/ioutil"
 	"log"
 	"math/big"
 	"net/http"
@@ -125,7 +125,7 @@ func dataHandle(w http.ResponseWriter, r *http.Request) {
 	defer f.Close()
 
 	// Daten lesen
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
