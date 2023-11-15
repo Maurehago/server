@@ -11,16 +11,47 @@ function GSID () {
 
 
 // Definition
-var _def = new Map({
-    base: "_def"
-    , cols: [
-        ["name", "string"]
-        , ["type", "string"]
-        , ["rest", "string"]
-        , ["info", "string"]
-    ]
-    , uniq: [[0]]
-});
+var _def = {
+    name: "_def"
+    , list: {
+        col: ["ID", "name", "type", "info"]
+        , type: ["string", "string", "string", "string"]
+        , format: ["GSID", , "@_type" , ]
+        , size: ["14;", "1;", "@type"]
+        , info: ["eindeutige ID", "Name der Spalte", "Typ der Spalte", "Informationen zu der Spalte"]
+    }
+    , data: []
+};
+
+
+// Typen
+var _type = ["string", "number", "bool", "array", "object"];
+var _number_format = [
+    "int8", "int16", "int32", "int64"
+    , "uint8", "uint16", "uint32", "uint64"
+    , "float32", "float64"
+];
+var _string_format = [
+    "varchar"
+    , "char"
+    , "GSID"
+    , "UUID"
+    , "date"
+    , "datetime"
+    , "time"
+    , "week"
+    , "month"
+    , "year"
+    , "range"
+    , "password"
+    , "email"
+    , "tel"
+    , "url"
+    , "img"
+    , "file"
+    , "color"
+];
+
 
 
 // ```yaml
