@@ -42,6 +42,7 @@ var _string_format = [
     , "week"
     , "month"
     , "year"
+    , "duration"
     , "range"
     , "password"
     , "email"

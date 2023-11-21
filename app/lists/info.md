@@ -48,9 +48,10 @@ wie zum Beispiel "domain" für die Domain Namen in einer Firebird Datenbank
     - date
     - datetime (local)
     - time
-    - week
+    - week  -   YYYY-Www
     - month
     - year
+    - duration  -   [Startdatum]/P[YY][MM][WW][DD][T[hH][mM][s[.f]S]]
     - range
     - password
     - email
@@ -59,13 +60,18 @@ wie zum Beispiel "domain" für die Domain Namen in einer Firebird Datenbank
     - img
     - file
     - color
+- benutzerdefiniert
+    - @name -   name= Name des Objekts/Liste - ist ein Verweis 
 
 
 ### Größen (size)
 Die Größen sind mit "min;max" anzugeben (inkl min und max)
-oder mit "|min;|max" wenn größer "min" (exclusive min) und kleiner "max" (exclusive max)
-oder eine Kombination von beiden "min;|max"
- 
+oder mit "!min;!max" wenn größer "min" (exclusive min) und kleiner "max" (exclusive max)
+oder eine Kombination von beiden "min;!max"  
+
+Bei einem String ist die Anzahl der Zeichen gemeint
+bei Datum umd Zeitangaben sind die entsprechenden ISO-Werte einzutragen.
+
 
 
 ### Eingabe Formate
