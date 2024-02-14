@@ -31,7 +31,7 @@ const (
 	Open   = true
 )
 
-var port, static string
+var port, static, homedir string
 
 // im Browser öffenen
 func open(url string) error {
@@ -170,6 +170,14 @@ func redirectStatic(w http.ResponseWriter, r *http.Request) {
 
 // Haup (Start) Funktion
 func main() {
+	// UserHomeDir
+	var err error
+	homedir, err = os.UserHomeDir()
+	if err != nil {
+		log.Fatal("No User Home Directory:", err)
+		return
+	}
+
 	// Parameter prüfen
 	// flag.StringVar(zeiger, name, default, beschreibung)
 	flag.StringVar(&port, "p", Port, "Server Port")
@@ -211,7 +219,7 @@ func main() {
 	fmt.Println("stop with CTRL+C   or   STRG+C")
 	fmt.Println("...")
 
-	err := http.ListenAndServe(serverURL, nil)
+	err = http.ListenAndServe(serverURL, nil)
 	if err != nil {
 		log.Fatal("Error Starting the HTTP Server :", err)
 		return
