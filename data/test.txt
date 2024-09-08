@@ -1,1 +1,0 @@
-{"liste1": [["IDX", "name", "type"], [1, "Hallo"], [1, "Welt"]]}

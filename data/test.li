@@ -1,8 +1,0 @@
-[_adress]
-name: _adress
-schema: _def
-
-IDX ░ name ░ type ░ rest ░ info
-1 ░ name ░ string ░  ░ Name
-2 ░ strasse ░ string ░  ░ Die Strasse
-
