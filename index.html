@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>HTTP-Server</title>
+</head>
+
+<body>
+    <div style="text-align: center;">
+        <h1>Webserver</h1>
+        <p>Ein Einfacher HTTP Server.<br />
+            Der auch das schreiben von text-basierenden Dateien,<br />
+            wie ".html, .json, .md, .csv, .txt, ...usw" unterstützt.
+        </p>
+        <p>
+            Dateien können in den Ordner "data" oder "_build" geschrieben und gelesen werden.
+        </p>
+    </div>
+    <b>Zum Beispiel:</b>
+    <pre><code class="language-js">
+        fetch("/data/test.json", {
+            method: "POST", 
+            body:'{"name": "Max Muster", "alter": 42}'
+        });
+    </code></pre>
+</body>
+
+</html>

@@ -3,11 +3,9 @@ package main
 // Pakete die zur Bearbeitung benötigt werden
 import (
 	"crypto/rand"
-	"embed"
 	"flag"
 	"fmt"
 	"io"
-	"io/fs"
 	"log"
 	"math/big"
 	"net/http"
@@ -20,8 +18,8 @@ import (
 
 // mit ausgelieferte Dateien
 //
-//go:embed public
-var public embed.FS
+///go:embed public
+//var public embed.FS
 
 // Standard Einstellungen
 const (
@@ -118,6 +116,7 @@ func dataHandle(w http.ResponseWriter, r *http.Request) {
 
 	f, err := os.Create(filePath)
 	if err != nil {
+		http.Error(w, err.Error(), 500)
 		return
 	}
 
@@ -155,18 +154,18 @@ func staticHandle(w http.ResponseWriter, r *http.Request) {
 }
 
 // PublicHandler
-func publicHandler() http.Handler {
-	sub, err := fs.Sub(public, "public")
-	if err != nil {
-		panic(err)
-	}
+//func publicHandler() http.Handler {
+//	sub, err := fs.Sub(public, "public")
+//	if err != nil {
+//		panic(err)
+//	}
+//
+//	return http.FileServer(http.FS(sub))
+//}
 
-	return http.FileServer(http.FS(sub))
-}
-
-func redirectStatic(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/server/", http.StatusSeeOther)
-}
+//func redirectStatic(w http.ResponseWriter, r *http.Request) {
+//	http.Redirect(w, r, "/server/", http.StatusSeeOther)
+//}
 
 // Haup (Start) Funktion
 func main() {
@@ -189,14 +188,15 @@ func main() {
 
 	// Data Handle
 	go http.Handle("/data/", http.HandlerFunc(dataHandle))
+	go http.Handle("/_build/", http.HandlerFunc(dataHandle))
 
 	// App Handle
-	go http.Handle("/app/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Pfad aus URL
-		filePath := static + r.URL.Path
-		// nur die Datei ausliefern
-		http.ServeFile(w, r, filePath)
-	}))
+	//go http.Handle("/app/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	//	// Pfad aus URL
+	//	filePath := static + r.URL.Path
+	//	// nur die Datei ausliefern
+	//	http.ServeFile(w, r, filePath)
+	//}))
 
 	// GSID Handle
 	go http.Handle("/gsid/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -206,7 +206,8 @@ func main() {
 
 	// Statische Seiten im unterOrdner "public"
 	// werden mit in die .EXE compiliert
-	go http.Handle("/", publicHandler())
+	//go http.Handle("/", publicHandler())
+	go http.Handle("/", http.FileServer(http.Dir("./")))
 
 	// http.Handle("/", fileServer)
 	// http.Handle("/", http.HandlerFunc(staticHandle))

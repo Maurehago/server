@@ -12,8 +12,8 @@ Deno.serve({ port: 8080 }, (req: Request) => {
   // POST in Data
   if (req.method == "POST") {
     // prüfen auf /data/ Ordner
-    if (!pathname.startsWith("/data/")) {
-      return new Response("400: send Data only in data/ folder", {
+    if (!pathname.startsWith("/data/") && !pathname.startsWith("/_build/")) {
+      return new Response("400: send Data only in data/ or _build/ folder", {
         status: 400,
       });
     }
