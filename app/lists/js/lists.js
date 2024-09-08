@@ -21,6 +21,33 @@ var _def = {
         , info: ["eindeutige ID", "Name der Spalte", "Typ der Spalte", "Informationen zu der Spalte"]
     }
     , data: []
+}
+
+// Liste vorlage
+var List = {
+  cols: []
+  , types: []
+  , rest: []
+  , info: []
+  , data: []
+
+// Global Short Identifier
+function GSID () {
+    return new Date().getTime().toString(36) + crypto.getRandomValues(new Uint32Array(1))[0].toString(36);
+}
+
+
+// Definition
+var _def = {
+    name: "_def"
+    , list: {
+        col: ["ID", "name", "type", "info"]
+        , type: ["string", "string", "string", "string"]
+        , format: ["GSID", , "@_type" , ]
+        , size: ["14;", "1;", "@type"]
+        , info: ["eindeutige ID", "Name der Spalte", "Typ der Spalte", "Informationen zu der Spalte"]
+    }
+    , data: []
 };
 
 
@@ -105,7 +132,7 @@ function get_sort(list, field_index) {
         return 0;
     });
 
-    return sort_table;
+  return sort_table;
 };
 
 // Daten Filtern
@@ -141,14 +168,14 @@ function get_group(list, field_index) {
         }
     });
 
-    return data_map;
+  return data_map;
 };
 
 // Liste anzeigen
-function show_list(colpos, listdoc){
-    var fixrow = document.querySelector("r-fix");
-    var fixcols = document.querySelectorAll("c-fix");
-    var fixcolscount = fixcols.length;
+function show_list(colpos, listdoc) {
+  var fixrow = document.querySelector("r-fix");
+  var fixcols = document.querySelectorAll("c-fix");
+  var fixcolscount = fixcols.length;
 
 };
 
