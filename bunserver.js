@@ -2,14 +2,33 @@
 //   Bun Fileserver
 // 2024-09-05
 // ========================
+// @ts-check
+
+import Bun from "bun";
+
+let port = 8080;
+
+// CLI Variablen Parameter lesen
+for (let i= 0; i < Bun.argv.length; i++) {
+  // -p | --port
+  if (Bun.argv[i] == "-p" || Bun.argv[i] == "--port") {
+    port = parseInt(Bun.argv[i +1]) || 8080;
+  }
+}
 
 //   Server erstellen
 let isPost = false;
 const server = Bun.serve({
-  port: 8080,
+  port: port,
 
   // Request prüfen
-  fetch(req: Request): Response | Promise<Response> {
+  //fetch(req: Request): Response | Promise<Response> {
+  /**
+   * 
+   * @param {Request} req - Request an Server
+   * @returns 
+   */
+  fetch(req) {
     let filePath = new URL(req.url).pathname;
 
     // wenn Pfad auf einen Ordner zeigt dann immer "index.html" anfügen
@@ -30,7 +49,8 @@ const server = Bun.serve({
           // Daten schreiben
           Bun.write("./" + filePath, data).then(() => {
             return new Response("OK");
-          }).catch((err: Error) => {
+          //}).catch((err: Error) => {
+          }).catch((/** @type {Error} */ err) => {
             console.log("POST err:", err);
             return new Response(err.message, { status: 500 });
           });

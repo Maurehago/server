@@ -201,7 +201,7 @@ func main() {
 	// GSID Handle
 	go http.Handle("/gsid/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// GSID ausliefern
-		fmt.Fprintf(w, gsid())
+		fmt.Fprintf(w, "%s", gsid())
 	}))
 
 	// Statische Seiten im unterOrdner "public"
