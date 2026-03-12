@@ -6,8 +6,45 @@
 
 import Bun from "bun";
 import { Glob } from "bun";
+import { Database } from "bun:sqlite";
+import { join } from "path";
 
+// Variablen
 let port = 8080;
+const APPDATA = process.env.APPDATA || join(process.env.HOME || '', '.config');
+const CONFIG_DB = join(APPDATA, "bunserver/config.sqlite");
+const DATA_DB = "data/data.sqlite";
+
+
+// const db = new Database("mydb.sqlite", { create: true });
+
+// Auslesen mit Spaltennamen und Werte Tabellen
+// import { Database } from "bun:sqlite";
+
+// const db = new Database(":memory:");
+// db.run("CREATE TABLE users (id INTEGER, name TEXT, email TEXT)");
+// db.run("INSERT INTO users VALUES (1, 'Alice', 'alice@example.com')");
+
+// // 1. Query vorbereiten
+// const query = db.query("SELECT * FROM users");
+
+// // 2. Spaltennamen abrufen (in der richtigen Reihenfolge)
+// const columns = query.columnNames; 
+// // => ["id", "name", "email"]
+
+// // 3. Werte als Array abrufen
+// const values = query.values(); 
+// // => [[1, "Alice", "alice@example.com"]]
+
+// // 4. Zuordnung (Beispiel)
+// values.forEach(row => {
+//     row.forEach((value, index) => {
+//         console.log(`${columns[index]}: ${value}`);
+//     });
+// });
+
+
+
 
 // CLI Variablen Parameter lesen
 for (let i = 0; i < Bun.argv.length; i++) {
@@ -33,7 +70,10 @@ async function getFileList(startPath, pattern) {
   return fileList;
 }
 
+// =========================
 //   Server erstellen
+// -------------------
+
 let isPost = false;
 const server = Bun.serve({
   port: port,

@@ -139,19 +139,19 @@ func dataHandle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Ein Handler nur für Statische Dateien
-func staticHandle(w http.ResponseWriter, r *http.Request) {
-	// nur GET Requests erlaubt
-	if r.Method != "GET" {
-		return
-	}
-	// Pfad aus URL
-	filePath := static + r.URL.Path
-	fmt.Println("file: " + filePath)
+// // Ein Handler nur für Statische Dateien
+// func staticHandle(w http.ResponseWriter, r *http.Request) {
+// 	// nur GET Requests erlaubt
+// 	if r.Method != "GET" {
+// 		return
+// 	}
+// 	// Pfad aus URL
+// 	filePath := static + r.URL.Path
+// 	fmt.Println("file: " + filePath)
 
-	// nur die Datei ausliefern
-	http.ServeFile(w, r, filePath)
-}
+// 	// nur die Datei ausliefern
+// 	http.ServeFile(w, r, filePath)
+// }
 
 // PublicHandler
 //func publicHandler() http.Handler {
