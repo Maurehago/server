@@ -1,18 +1,29 @@
 // ==============================
-//  SQLite  Datenbank Teiber
-//  für Bun Server
-// ===============================
+//   Datenbank Treiber Template
+// ==============================
 // @ts-check
 
-import { Database } from "bun:sqlite";
+import { Database } from "bun:sqlite"; // Ausbessern auf Andere Datenbank
+
+// ============================
+//   Typen
+// ----------
 
 /** @typedef {Array<string|number|bigint|boolean|Uint8Array<ArrayBufferLike>>} DataRow */
 /** @typedef {Array<DataRow>} DataRows */
 
+// ================================
+//   Parameter
+// -------------
+
 const tableNameRegex = /^(?!sqlite_)[a-z_][a-z0-9_]*$/;
 
 
-export class SQLiteDriver {
+// ============================
+//   Klasse
+// ----------
+
+export class DBDriver {
     constructor(dbPath = "app.db") {
         this.db = new Database(dbPath);
         this._initTables();
