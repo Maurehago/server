@@ -73,31 +73,85 @@ export class SQLiteDriver {
     }
 
     /**
-     * Liest aus einer Tabelle Alle Datensätze oder Datensätze mit angegebenen GSID's
+     * Liest aus einer Tabelle Datensätze mit flexiblen Filtern und Sortierung.
+     * 
      * @param {string} tableName - Name der Tabelle
-     * @param {string|Array<string>} [selector] - "*", "ALL", {GSID} oder Liste mit GSID's
-     * @returns {Promise<DataRows>}
+     * @param {string|Array<string>|null} [selector] - "*", "ALL", {GSID}, Liste mit GSIDs oder null
+     * @param {string} [whereClause] - Optionale zusätzliche WHERE-Bedingung (z.B. "username = ? AND status = ?")
+     * @param {Array<any>} [whereParams] - Parameter-Werte für die Fragezeichen in der whereClause
+     * @param {string} [orderBy] - Optionale Sortierung (z.B. "changed_at DESC")
+     * @returns {Promise<DataRows>} [Spaltennamen, ...Datenzeilen]
      */
-    async getRows(tableName, selector) {
+    async getRows(tableName, selector = "*", whereClause = "", whereParams = [], orderBy = "") {
         // Check gegen SQL-Injection bei Tabellennamen
         if (!tableNameRegex.test(tableName)) throw new Error("Table not allowed!");
 
-        if (selector == undefined || selector == "*" || selector === "ALL") {
-            const q = this.db.query(`SELECT * FROM ${tableName}`);
-            return [q.columnNames, ...q.values()];
+        // Spaltennamen vorab ermitteln todo: Notwendig ????
+        const qColumns = this.db.query(`SELECT * FROM ${tableName} WHERE 0`);
+        const columnNames = qColumns.columnNames;
+
+        let baseSql = `SELECT * FROM ${tableName}`;
+        let conditions = [];
+        let queryParams = [];
+
+        // 1. Selector auswerten (GSID-Logik)
+        if (selector && selector !== "*" && selector !== "ALL") {
+            if (Array.isArray(selector)) {
+                if (selector.length === 0) return [columnNames]; // Leere ID-Liste -> Keine Daten
+                const placeholders = selector.map(() => "?").join(",");
+                conditions.push(`gsid IN (${placeholders})`);
+                queryParams.push(...selector);
+            } else {
+                conditions.push(`gsid = ?`);
+                queryParams.push(selector);
+            }
         }
 
-        if (Array.isArray(selector)) {
-            // Erzeugt z.B. SELECT * FROM table WHERE gsid IN (?, ?, ?)
-            const placeholders = selector.map(() => "?").join(",");
-            const q = this.db.query(`SELECT * FROM ${tableName} WHERE gsid IN (${placeholders})`);
-            return [q.columnNames, ...q.values(...selector)];
+        // 2. Eigene Where-Bedingung anhängen
+        if (whereClause) {
+            conditions.push(`(${whereClause})`);
+            if (Array.isArray(whereParams)) {
+                queryParams.push(...whereParams);
+            }
         }
 
-        // Standard: Einzelne ID abrufen
-        const q = this.db.query(`SELECT * FROM ${tableName} WHERE gsid = ?`);
-        return [q.columnNames, ...q.values(selector)];
+        // WHERE-Statements im SQL zusammenführen
+        if (conditions.length > 0) {
+            baseSql += ` WHERE ${conditions.join(" AND ")}`;
+        }
+
+        // 3. Sortierung anhängen (Sicherheits-Check gegen SQL-Injection bei Spaltennamen)
+        if (orderBy) {
+            if (!/^[a-zA-Z0-9_\s,]+$/.test(orderBy)) {
+                throw new Error("Invalid ORDER BY clause!");
+            }
+            baseSql += ` ORDER BY ${orderBy}`;
+        }
+
+        // Query vorbereiten und mit gesammelten Parametern ausführen
+        const q = this.db.query(baseSql);
+        return [columnNames, ...q.values(...queryParams)];
     }
+
+// // Beispiel 1: Alle Datensätze sortiert nach Datum
+// const auditLogs = await driver.getRows("audit_log", "ALL", "", [], "changed_at DESC");
+
+// // Beispiel 2: Nur bestimmte IDs, die zusätzlich von "Admin" geändert wurden
+// const specificLogs = await driver.getRows(
+//     "audit_log", 
+//     ["id-1", "id-2"],        // selector
+//     "changed_by = ?",        // custom whereClause
+//     ["Admin"]                // whereParams
+// );
+
+// // Beispiel 3: Kein Selector (null/*), aber eine komplett eigene WHERE-Bedingung mit Sortierung
+// const users = await driver.getRows(
+//     "users",
+//     null,                    // Selector ignorieren
+//     "username LIKE ? AND password_hash IS NOT NULL", // custom whereClause
+//     ["%jan%"],               // whereParams
+//     "username ASC"           // orderBy
+// );
 
 
     /**
@@ -114,13 +168,13 @@ export class SQLiteDriver {
         if (!Array.isArray(rows)) { return 0; }
 
         const headers = rows[0];
-        const dataRows = rows.slice(1);
+        //const dataRows = rows.slice(1);
 
         // 1. Spalten filtern, die aktualisiert werden sollen (alle außer der ID)
         const updateFields = headers.filter(col => col !== conflictKey);
 
         // SOFORTIGER ABBRUCH: Wenn nur die ID (oder gar nichts) übergeben wurde
-        if (updateFields.length === 0 || dataRows.length === 0) {
+        if (updateFields.length === 0 || rows.length <= 1) {
             return 0; // 0 Zeilen verarbeitet, keine DB-Aktion nötig
         }
 
@@ -140,12 +194,13 @@ export class SQLiteDriver {
         // 3. Ausführung in einer schnellen Transaktion
         const stmt = this.db.prepare(sql);
         const transaction = this.db.transaction((allRows) => {
-            for (const row of allRows) {
+            for (let i = 1; i < allRows.length; i++) { // ab 2. Datenzeile, 1. Zeile enthält Spaltennamen
+                const row = allRows[i];
                 stmt.run(...row);
             }
             return allRows.length;
         });
 
-        return transaction(dataRows);
+        return transaction(rows);
     }
 }
