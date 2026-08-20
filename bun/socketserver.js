@@ -26,6 +26,30 @@
  * @property {number} exp
  */
 
+/**
+ * @typedef {object} MessageData
+ * @property {string} type - Message Type "LOCK_RECORD|SAVE|UNLOOK|RECORD_SAVED_AND_UNLOCKED"
+ * @property {string} [tablename] - Name der Datentabelle
+ * @property {string} [recordid] - Datensatz ID
+ * @property {Array<Array<any>>} [rows] - Datenzeilen 1. Zeile sind Feldnamen // z.B. [ ["gsid", "name"], ["gadsfd", "Muster"] ]
+ * @property {string} [idname] - Name der ID-Spalte
+ * @property {Map<any, any>} [locks] - Map mit gesperrten Datensätzen
+ * @property {string} [username] - Name des Benutzer
+ * @property {string} [userid] - ID des Benutzers
+ * @property {string} [text] - Belibiger Text, oder Fehlermeldung
+ */
+
+
+/**
+ * data.tablename + "_" + data.recordid, { tablename, recordid username: ws.data.username, locktime: new Date().toLocaleTimeString() }
+ * @typedef {object} LockData
+ * @property {string} id - ID zusamengesetzt aus "{tablename}_{recordid}"
+ * @property {string} tablename - Name der Tabelle
+ * @property {string} recordid - ID des Datensatzes
+ * @property {string} username - Name des Benutzers
+ * @property {string} locktime - Datum ab wann gesperrt ist
+ */
+const LockData_fields = ["id", "tablename", "recordid", "username", "locktime"]
 
 /** 
  * @typedef {Object} WebSocketData 
@@ -197,8 +221,10 @@ export class RealtimeServer {
 					ws.subscribe("app-room");
 					// NEU: Daten werden jetzt vollkommen dynamisch über das DAL geladen!
 					// Wir laden z.B. alle Datensätze aus der Tabelle 'records'
+					// todo: StartTabelle configurieren
 					const allRecords = await this.db.getRows("records", "ALL");
 
+					// todo: Objekt typisieren, Locks eventuell anpassen(infoTable?)
 					ws.send(JSON.stringify({
 						type: "INITIAL_STATE",
 						locks: Object.fromEntries(this.activeLocks),
@@ -211,46 +237,58 @@ export class RealtimeServer {
 					ws.data.expiresAt = Date.now() + this.sessionTimeout;
 
 					// Datenstring in Objekt umwandeln
+					/** @type {MessageData} */
 					const data = JSON.parse(message + "");
-
+					// data: {type: "LOCK|SAVE|UNLOCK" id: "", tablename: "", recordid: ""|0, userid: "", username: ""}
 					switch (data.type) {
-						case "LOCK_RECORD":
+						case "LOCK":
 							// Datensatz Sperren
-							// {type: "LOCK_RECORD", id}
-							this.activeLocks.set(data.id, { gsid: ws.data.userId, username: ws.data.username, since: new Date().toLocaleTimeString() });
-							server.publish("app-room", JSON.stringify({ type: "RECORD_LOCKED", recordId: data.recordId, userId: ws.data.userId, username: ws.data.username }));
+							// {type: "LOCK", id}
+
+							/** @type {LockData} */
+							const lockdata = {id: data.tablename + "_" + data.recordid
+								, username: ws.data.username || ""
+								, tablename: data.tablename || ""
+								, recordid: data.recordid || ""
+								, locktime: new Date().toLocaleTimeString()
+							};
+							this.activeLocks.set(data.tablename + "_" + data.recordid, lockdata);
+
+							/** @type {MessageData} */
+							const messagedata = { type: "RECORD_LOCKED", tablename: data.tablename, recordid: data.recordid, username: ws.data.username }
+							server.publish("app-room", JSON.stringify(messagedata));
 							this._broadcastDashboard(server);
 							break;
 
 						case "SAVE":
 							// Datensätze Speichern und entsperren
 							// {tableName: "Name_der_Tabelle", rows: [[]], idCol}
-							const lock = this.activeLocks.get(data.recordId);
+							const lock = this.activeLocks.get(data.recordid);
 							if (lock && lock.userId === ws.data.userId) {
 
 								// Nutzt das neue dynamische Speicher-Interface inklusive User-ID fürs Log
 								await this.db.saveRows(
-									data.tableName,    // z.B. "records"
-									data.rows,     // z.B. [ ["gsid", "name"], ["gadsfd", "Muster"] ]
-									data.idCol || "gsid" // Name des ID-Feldes oder Spaltenname welches den Datensatz eindeutig identifiziert
+									data.tablename || "",    // z.B. "records"
+									data.rows || [[]],     // z.B. [ ["gsid", "name"], ["gadsfd", "Muster"] ]
+									data.idname || "gsid" // Name des ID-Feldes oder Spaltenname welches den Datensatz eindeutig identifiziert
 								);
 
-								this.activeLocks.delete(data.recordId);
+								this.activeLocks.delete(data.recordid);
 
 								// Alle Clients über den neuen Zustand informieren
 								server.publish("app-room", JSON.stringify({
 									type: "RECORD_SAVED_AND_UNLOCKED",
-									tableName: data.tableName,
-									recordId: data.recordId,
-									changedFields: data.changedFields
+									tablename: data.tablename,
+									recordid: data.recordid,
+									locks: Object.fromEntries(this.activeLocks)
 								}));
 								this._broadcastDashboard(server);
 							}
 
-						case "UNLOOK":
+						case "UNLOCK":
 							// Datensatz entsperren
-							this.activeLocks.delete(data.id);
-							server.publish("app-room", JSON.stringify({ type: "RECORD_UNLOCKED", id: data.id }));
+							this.activeLocks.delete(data.tablename + "_" + data.recordid);
+							server.publish("app-room", JSON.stringify({ type: "RECORD_UNLOCKED", tablename: data.tablename, recordid: data.recordid, locks: Object.fromEntries(this.activeLocks) }));
 							this._broadcastDashboard(server);
 
 						default:
