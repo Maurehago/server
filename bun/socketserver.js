@@ -3,6 +3,9 @@
 // ===================================
 // @ts-check
 
+import { join } from "path";
+import { mkdir } from "fs/promises";
+
 // ===================================
 //   Typen
 // --------
@@ -84,6 +87,44 @@ export function getGSID(large) {
 	}
 }
 
+
+/**
+ * 
+ * @returns {string} Pfad zur Konfiguration
+ */
+function getConfigPath() {
+	// Erkennt Windows (APPDATA) oder macOS/Linux (HOME)
+	const baseDir = process.env.APPDATA || process.env.HOME || ".";
+	// todo: Ordnernamen und Datei Einstellbar????
+	return join(baseDir, ".meine_app_konfiguration", "start_config.json");
+}
+
+/**
+ * Konfiguration speichern
+ * @param {object} data - Einstellungen
+ */
+async function saveConfig(data) {
+	const filePath = getConfigPath();
+	const file = Bun.file(filePath);
+
+	// Sicherstellen, dass die Ordnerstruktur existiert
+	const dirPath = filePath.substring(0, filePath.lastIndexOf("/"));
+	await mkdir(dirPath, { recursive: true });
+
+	await Bun.write(file, JSON.stringify(data, null, 2));
+}
+
+/**
+ * Konfiguration laden
+ * @returns {Promise<object|null>}
+ */
+async function loadConfig() {
+	const file = Bun.file(getConfigPath());
+	if (await file.exists()) {
+		return await file.json();
+	}
+	return null; // Zeigt an, dass noch keine Konfiguration existiert
+}
 
 
 // const activeLocks = new Map();// 30 Minuten Inaktivitäts-Timeout (in Millisekunden)const SESSION_TIMEOUT = 30 * 60 * 1000; 
@@ -246,7 +287,8 @@ export class RealtimeServer {
 							// {type: "LOCK", id}
 
 							/** @type {LockData} */
-							const lockdata = {id: data.tablename + "_" + data.recordid
+							const lockdata = {
+								id: data.tablename + "_" + data.recordid
 								, username: ws.data.username || ""
 								, tablename: data.tablename || ""
 								, recordid: data.recordid || ""
@@ -307,8 +349,8 @@ export class RealtimeServer {
 							this.connections.delete(ws.data.userId + "");
 							ws.unsubscribe("app-room");
 							this._broadcastDashboard(server);
-							
-							
+
+
 							// Token des User löschen
 							const keys = [...this.tokens.keys()];
 							for (let i = 0; i < keys.length; i++) {

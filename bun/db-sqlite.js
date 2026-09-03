@@ -18,6 +18,23 @@ export class SQLiteDriver {
         this._initTables();
     }
 
+    /**
+     * Stellt die Verbindung bereit (Schnittstellenkompatibilität)
+     * @returns {Promise<void>}
+     */
+    async connect() {
+        return Promise.resolve(); // SQLite öffnet sich bereits im Constructor
+    }
+
+    /**
+     * Schließt die Datenbank
+     * @returns {Promise<void>}
+     */
+    async disconnect() {
+        this.db.close();
+        return Promise.resolve();
+    }
+
     _initTables() {
         this.db.run(`
       CREATE TABLE IF NOT EXISTS users (gsid TEXT PRIMARY KEY, username TEXT NOT NULL UNIQUE, password_hash TEXT);
@@ -27,6 +44,7 @@ export class SQLiteDriver {
     `);
     }
 
+  
     // --- NATIVE AUTH-METHODEN (Bleiben wie im Interface definiert) ---
     /**
      * Liefert einen Benutzer Datensatz zurück 

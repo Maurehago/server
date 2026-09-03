@@ -9,8 +9,76 @@ import { Database } from "bun:sqlite"; // Ausbessern auf Andere Datenbank
 //   Typen
 // ----------
 
-/** @typedef {Array<string|number|bigint|boolean|Uint8Array<ArrayBufferLike>>} DataRow */
-/** @typedef {Array<DataRow>} DataRows */
+/**
+ * Eine einzelne Datenzeile. Kann primitive Werte oder Binärdaten enthalten.
+ * @typedef {Array<string | number | bigint | boolean | Uint8Array | null>} DataRow
+ */
+
+/**
+ * Das universelle, zweidimensionale Tabellenformat für alle Treiber und Schichten.
+ * Die ERSTE Zeile (Index 0) enthält IMMER die Spaltennamen (Header).
+ * @typedef {Array<DataRow>} DataRows
+ */
+
+
+/**
+ * Beschreibt eine registrierte Datenquelle (Datenbank oder Datei-Verzeichnis).
+ * Diese Struktur wird in der lokalen config.json persistiert.
+ * @typedef {Object} DriverConfig
+ * @property {string} id - Eindeutige ID des Treibers innerhalb dieser App (z.B. "lokale_kunden_db")
+ * @property {"SQLITE" | "FIREBIRD" | "JSON_FILES" | "HTML_FRAGMENTS"} type - Die technologische Art des Treibers
+ * @property {string} name - Menschenlesbarer Anzeigename für das UI-Hauptmenü
+ * @property {string} connectionString - Pfad zur Datei (SQLite/JSON) oder Server-Verbindungsdaten (Firebird)
+ */
+
+/**
+ * Die globale Konfigurationsdatei der Anwendung, abgelegt im Benutzer-Appdata-Ordner.
+ * @typedef {Object} ApplicationConfig
+ * @property {string} appName - Der Name der App (aus Startparameter oder Default)
+ * @property {boolean} isNewSystem - Flag; "true" wenn das System im Zustand "NULL" ist (keine Treiber konfiguriert)
+ * @property {Array<DriverConfig>} drivers - Liste aller vom Benutzer eingerichteten Datenquellen
+ * @property {string | null} defaultDriverId - Optionaler Standard-Treiber, der beim Start direkt geöffnet wird
+ */
+
+/**
+ * Repräsentiert eine aktive Bearbeitungssperre eines Datensatzes (Concurrency Management).
+ * Existiert rein In-Memory auf dem Server.
+ * @typedef {Object} LockData
+ * @property {string} lockKey - Zusammengesetzter Key aus `driverId_tableName_recordId`
+ * @property {string} driverId - ID des betroffenen Treibers
+ * @property {string} tableName - Name der editierten Tabelle
+ * @property {string} recordId - Eindeutige ID des Datensatzes (Wert der ID-Spalte)
+ * @property {string} username - Name des Benutzers, der den Datensatz aktuell sperrt
+ * @property {string} lockTime - Uhrzeit des Sperr-Zeitpunkts (LocaleTimeString)
+ */
+
+/**
+ * Definiert die Schnittstelle, die JEDER Datenbank- oder Dateitreiber implementieren MUSS.
+ * @typedef {Object} DBDriverInterface
+ * @property {string} id - Entspricht DriverConfig.id
+ * @property {string} type - Entspricht DriverConfig.type
+ * @property {(tableName: string) => Promise<DataRows>} getRows - Holt alle Zeilen einer Tabelle inkl. Header
+ * @property {(tableName: string, recordId: string, idColName: string) => Promise<DataRows>} getRecord - Holt genau eine Zeile + Header für die Detailansicht
+ * @property {(tableName: string, deltaRows: DataRows, idColName: string) => Promise<boolean>} saveRows - Schreibt nur die geänderten Spalten (Delta-Array) in die DB
+ * @property {(tableName: string, recordId: string, idColName: string) => Promise<boolean>} deleteRow - Löscht einen spezifischen Datensatz aus der Tabelle
+ * @property {(newSchemaJson: string) => Promise<{success: boolean, message: string}>} [migrateSchema] - Optional: Führt Tabellen-Migrationen bei Schema-Updates aus
+ */
+
+/**
+ * Das einheitliche WebSocket-Nachrichtenformat für die Kommunikation zwischen Client und Server.
+ * @typedef {Object} ClientServerMessage
+ * @property {"GET_NEXT_COLUMN" | "REQUEST_LOCK" | "RELEASE_LOCK" | "SAVE_DATA" | "DELETE_DATA" | "SAVE_CONFIG"} type - Aktionstyp
+ * @property {string} [driverId] - Ziel-Treiber für die Aktion
+ * @property {string} [tableName] - Ziel-Tabelle für die Aktion
+ * @property {string} [recordId] - Ziel-Datensatz-ID (falls anwendbar)
+ * @property {string} [idColName] - Name der Primärschlüssel-Spalte (Standard meist "gsid")
+ * @property {string} [targetType] - Für Navigation: Welcher UI-Typ wird erwartet ("MENU" | "TABLE" | "FORM" | "DETAIL" | "WIZARD")
+ * @property {string} [payload] - Freitext-Feld für Payloads (z.B. komplettes Config-JSON oder Schema-JSON)
+ * @property {DataRows} [rows] - Das Datenpaket (entweder gesamte Tabelle oder Delta-Array bei SAVE)
+ */
+
+
+
 
 // ================================
 //   Parameter
@@ -36,6 +104,23 @@ export class DBDriver {
       CREATE TABLE IF NOT EXISTS records (gsid TEXT PRIMARY KEY, title TEXT NOT NULL, content TEXT);
       CREATE TABLE IF NOT EXISTS audit_log (gsid TEXT PRIMARY KEY, table_name TEXT, row_id TEXT, action TEXT, changed_fields TEXT, changed_by TEXT, changed_at TEXT);
     `);
+    }
+
+    /**
+     * Stellt die Verbindung bereit (Schnittstellenkompatibilität)
+     * @returns {Promise<void>}
+     */
+    async connect() {
+        return Promise.resolve(); 
+    }
+
+    /**
+     * Schließt die Datenbank
+     * @returns {Promise<void>}
+     */
+    async disconnect() {
+        this.db.close();
+        return Promise.resolve();
     }
 
     // --- NATIVE AUTH-METHODEN (Bleiben wie im Interface definiert) ---
